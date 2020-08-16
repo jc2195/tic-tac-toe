@@ -1,7 +1,5 @@
-# frozen_string_literal: true
-
-# This is a class object for the game board
 class Board
+  attr_accessor :board_map
   def initialize(
     player_o,
     player_x,
@@ -45,31 +43,32 @@ class Board
   end
 end
 
-def game(player_o, player_x)
-  game_board = Board.new(player_o, player_x)
-  prng = Random.new.rand(2)
-  current_player = prng.zero? ? player_o : player_x
-  while game_board.check == false
-    game_board.show_board
-    puts "#{current_player}, where do you want to place?"
-    print 'Position: '
-    position = nil
-    loop do
-      position = gets.chomp
-      break if position.to_i.between?(1, 9)
-
-      print 'Please enter a valid position:'
+describe Board do
+  describe '#check' do
+    it 'returns the winner symbol if there is a winner' do
+      board = Board.new(
+        'player_o',
+        'player_x',
+        { A1: 'X', A2: 'X', A3: 'X', B1: '4', B2: '5', B3: '6', C1: '7', C2: '8', C3: '9' }
+      )
+      expect(board.check).to eql('X')
     end
-    game_board.add(current_player, position)
-    current_player = current_player == player_o ? player_x : player_o
-  end
-  winner = current_player == player_o ? player_x : player_o
-  puts "#{winner} is the winner!"
-end
 
-print "Who wants to play as noughts?\nName: "
-player_o = gets.chomp
-print "Who wants to play as crosses?\nName: "
-player_x = gets.chomp
-puts "Let's play!"
-game(player_o, player_x)
+    it 'returns false if there is no winner' do
+      board = Board.new(
+        'player_o',
+        'player_x',
+        { A1: 'X', A2: 'O', A3: 'X', B1: '4', B2: '5', B3: '6', C1: '7', C2: '8', C3: '9' }
+      )
+      expect(board.check).to eql(false)
+    end
+  end
+
+  describe '#add' do
+    it 'adds the correct symbol to the correct location' do
+      board = Board.new('player_o', 'player_x')
+      board.add('player_x', '5')
+      expect(board.board_map).to eql({ A1: '1', A2: '2', A3: '3', B1: '4', B2: 'X', B3: '6', C1: '7', C2: '8', C3: '9' })
+    end
+  end
+end
